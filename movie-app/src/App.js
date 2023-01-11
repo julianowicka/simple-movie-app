@@ -1,48 +1,67 @@
 import {useEffect, useState} from "react";
+import MovieCard from "./MovieCard";
 import './App.css';
+import SearchIcon from './search.svg';
 
-const Person = (props) =>{
-    return (
-        <>
-        <h1>Name: {props.name}</h1>
-        <h2>Last name: {props.lastName}</h2>
-        <h2>Age: {props.age}</h2>
-        </>
-    )
-}
+const API_URL = 'https://www.omdbapi.com?apikey=469e3d4e';
 
-
+// const movie= {
+//     "Title": "Fighting, Flying and Driving: The Stunts of Spiderman 3",
+//     "Year": "2007",
+//     "imdbID": "tt1132238",
+//     "Type": "movie",
+//     "Poster": "https://m.media-amazon.com/images/M/MV5BNTI3NDE1ZmEtMTRiMS00YTY4LTk0OGItNjY4YmI0MDM4OGM4XkEyXkFqcGdeQXVyODE2NDgwMzM@._V1_SX300.jpg"
+// }
 const App = () => {
+    const [movies, setMovies] = useState([]);
+    const [searchTerm,setSearchTerm] = useState('');
+    const searchMovies = async (title) => {
+        const response = await fetch(`${API_URL}&s=${title}`);
+        const data = await response.json();
 
-    const name = 'Julia';
-    const isNameShowing = true;
-    const [counter, setCounter] = useState(0);
+        setMovies(data.Search);
+    }
 
     useEffect(() => {
-        alert("You have changed the counter to " + counter)
-    },[counter]);
+        searchMovies('Spiderman')
+    }, []);
+
 
     return (
+        <div className="app">
+            <h1>MovieLand</h1>
+            <div className="search">
+                <input
+                    placeholder="Search for movies"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <img
+                    src={SearchIcon}
+                    alt='search'
+                    onClick={() => searchMovies(searchTerm)}
+                />
 
-    <div className="App">
+            </div>
+            {
+                movies.length > 0
+                    ? (
+                        <div className='container'>
+                            {movies.map((movie) =>
+                                <MovieCard movie={movie} />
+                                )}
 
-      <h1>Hello, {isNameShowing ? name: 'someone'} {2 + 2}! </h1>
-        {name ? (
-            <>
-            test
-            </>
-        ): (
-            <>
-                    <h1>test</h1>
-                    <h2>There is no name</h2>
-                </>
-        )}
-        <Person name ='John' lastName='Doe' age={30} />
-    <button onClick={() => setCounter((prevCount) => prevCount -1 )}>-</button>
-    <h1>{counter}</h1>
-        <button onClick={() => setCounter((prevCount) => prevCount +1 )}>+</button>
-    </div>
-  );
+                        </div>
+                    ) : (
+                        <div className="empty">
+                            <h2>No movies found</h2>
+                        </div>
+                    )
+
+            }
+
+
+        </div>
+    );
 }
-
 export default App;
